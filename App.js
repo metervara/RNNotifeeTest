@@ -14,8 +14,6 @@ import {
   View,
   Text,
   StatusBar,
-  Button,
-  Platform,
 } from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
@@ -23,71 +21,31 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import notifee, {
   IOSAuthorizationStatus,
   AndroidImportance,
-  AndroidVisibility,
 } from '@notifee/react-native';
 
-const App: () => React$Node = () => {
+const App = () => {
   useEffect(() => {
-    requestUserPermission().then(result => {
-      //
-    });
+    async function displayNotification() {
+      const settings = await notifee.requestPermission();
 
-    return function cleanup() {
-      //
-    };
-  });
-
-  async function onDisplayNotification() {
-    const title = 'Notification Title';
-    const body = 'Main body content of the notification';
-
-    if (Platform.OS === 'android') {
-      const channelId = await notifee.createChannel({
-        id: 'important',
-        name: 'Important Notifications',
-        importance: AndroidImportance.HIGH,
-        visibility: AndroidVisibility.PUBLIC,
-      });
-
-      await notifee.displayNotification({
-        title,
-        body,
-        android: {
-          channelId,
-          importance: AndroidImportance.HIGH,
-          visibility: AndroidVisibility.PUBLIC,
-        },
-      });
-    } else {
-      const foregroundPresentationOptions = {
-        alert: true,
-        badge: true,
-        sound: true,
-      };
-
-      await notifee.displayNotification({
-        title,
-        body,
-        ios: {
-          critical: true,
-          importance: AndroidImportance.HIGH, // Documentation has Importance.HIGH which does not exist
-          foregroundPresentationOptions,
-        },
-      });
-    }
-  }
-
-  async function requestUserPermission() {
-    const settings = await notifee.requestPermission();
-
-    if (settings.authorizationStatus >= IOSAuthorizationStatus.AUTHORIZED) {
-      console.log('Permission settings:', settings);
-    } else {
-      console.log('User declined permissions');
+      if (settings.authorizationStatus >= IOSAuthorizationStatus.AUTHORIZED) {
+        console.log('Has permission, Display a notification');
+        await notifee.displayNotification({
+          title: 'A notification',
+          body: 'The notification body',
+          ios: {
+            critical: true,
+            importance: AndroidImportance.HIGH,
+          },
+        });
+        console.log('Displayed notification?');
+      } else {
+        console.log('User declined permissions');
+      }
     }
 
-    return settings;
-  }
+    displayNotification();
+  }, []);
 
   return (
     <>
@@ -99,10 +57,6 @@ const App: () => React$Node = () => {
           <View style={styles.body}>
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>Notifee test</Text>
-              <Button
-                title="Display Notification"
-                onPress={() => onDisplayNotification()}
-              />
             </View>
           </View>
         </ScrollView>
