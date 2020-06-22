@@ -20,7 +20,7 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 import notifee, {
   IOSAuthorizationStatus,
-  Importance,
+  AndroidImportance,
 } from '@notifee/react-native';
 
 const App = () => {
@@ -35,7 +35,7 @@ const App = () => {
           body: 'The notification body',
           ios: {
             critical: true,
-            importance: Importance.HIGH,
+            importance: AndroidImportance.HIGH,
           },
         });
         console.log('Displayed notification?');
